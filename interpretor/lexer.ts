@@ -1,16 +1,23 @@
 export enum TokenType {
+    // Literals
+    Null,
     Number,
     Identifier,
+
+    // Keywords
+    Let,
+
+    // Grouping and operators
     Equals,
     OpenParenthesis,
     CloseParenthesis,
     BinaryOperator,
-    Let,
-    EOF,
+    EOF, // End of file
 }
 
 const KEYWORDS : Record<string, TokenType> = {
     "let": TokenType.Let,
+    "null": TokenType.Null,
 };
 
 export interface Token {
@@ -79,8 +86,11 @@ export function tokenize(src: string): Token[] {
 
                 // Add the identifier token
                 const value = src.slice(start, i);
-                const type = KEYWORDS[value] ?? TokenType.Identifier;
-                tokens.push({ type, value });
+                const reservedType = KEYWORDS[value];
+
+                const type = typeof reservedType == "number" ? reservedType : TokenType.Identifier;
+
+                tokens.push(token(type, value));
             } else {
                 console.log("Unexpected character: " + c);
                 Deno.exit(1); 
