@@ -6,6 +6,7 @@ export enum TokenType {
     CloseParenthesis,
     BinaryOperator,
     Let,
+    EOF,
 }
 
 const KEYWORDS : Record<string, TokenType> = {
@@ -18,8 +19,9 @@ export interface Token {
 }
 
 function isBinaryOperator(c: string) : boolean {
-    return c === "+" || c === "-" || c === "*" || c === "/";
+    return c === "+" || c === "-" || c === "*" || c === "/" || c === "%";
 }
+
 function isWhitespace(c: string) : boolean {
     return c === " " || c === "\t" || c === "\n" || c === "\r";
 }
@@ -29,6 +31,9 @@ function isDigit(c: string) : boolean {
 }
 
 function isLetter(c: string) : boolean {
+    if (c === undefined) {
+        return false;
+    }
     return /[a-z]/i.test(c);
 }
 
@@ -41,6 +46,7 @@ export function tokenize(src: string): Token[] {
     let i = 0;
     while (i < src.length) {
         const c = src[i];
+        
         if (c === "=") {
             tokens.push({ type: TokenType.Equals, value: c });
             i++;
@@ -66,24 +72,21 @@ export function tokenize(src: string): Token[] {
 
                 // Add the number token
                 tokens.push(token(TokenType.Number, src.slice(start, i)));
-                        } else if (isLetter(c)) {
-                            const start = i;
-                            // Loop until we find a non-letter character by incrementing i in the condition
-                            while (isLetter(src[++i]));
+            } else if (isLetter(c)) {
+                const start = i;
+                // Loop until we find a non-letter character by incrementing i in the condition
+                while (isLetter(src[++i]));
 
-                            // Add the identifier token
-                            const value = src.slice(start, i);
-                            const type = KEYWORDS[value] ?? TokenType.Identifier;
-                            tokens.push({ type, value });
-                        } else {
-                            console.log("Unexpected character: " + c);
-                            Deno.exit(1); 
-                        }
+                // Add the identifier token
+                const value = src.slice(start, i);
+                const type = KEYWORDS[value] ?? TokenType.Identifier;
+                tokens.push({ type, value });
+            } else {
+                console.log("Unexpected character: " + c);
+                Deno.exit(1); 
+            }
         }
     }
+    tokens.push(token(TokenType.EOF, "EndOfFile"));
     return tokens;
 }
-
-const source = await Deno.readTextFile("test.txt");
-const tokens = tokenize(source);
-console.log(tokens);
