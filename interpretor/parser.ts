@@ -1,4 +1,4 @@
-import { Statement, Program, Expression, BinaryExpression, NumericLiteral, Identifier, VariableDeclaration, AssignmentExpression } from "./ast.ts";
+import { Statement, Program, Expression, BinaryExpression, NumericLiteral, Identifier, VariableDeclaration, AssignmentExpression, PropertyLiteral, ObjectLiteral } from "./ast.ts";
 import { tokenize, Token, TokenType} from "./lexer.ts";
 
 export default class Parser {
@@ -79,7 +79,7 @@ export default class Parser {
     }
 
     private parseAssignmentExpression(): Expression {
-        const left = this.parseAdditiveExpression();
+        const left = this.parseObjectExpression();
 
         if(this.at().type == TokenType.Equals) {
             this.consume();
@@ -93,6 +93,42 @@ export default class Parser {
         }
 
         return left;
+    }
+
+    parseObjectExpression() : Expression {
+        if(this.at().type != TokenType.OpenBrace) {
+            return this.parseAdditiveExpression();
+        }
+
+        this.consume();
+        const properties = new Array<PropertyLiteral>();
+
+        while(this.notEOF() && this.at().type != TokenType.CloseBrace) {
+            const key = this.consumeAndExpect(TokenType.Identifier, "Expected key identifier").value;
+
+            if(this.at().type == TokenType.Comma) {
+                this.consume();
+                properties.push({key, kind: 'PropertyLiteral'} as PropertyLiteral);
+                continue;
+            } else if(this.at().type == TokenType.CloseBrace) {
+                properties.push({key, kind: 'PropertyLiteral'} as PropertyLiteral);
+                break;
+            } 
+
+            this.consumeAndExpect(TokenType.Colon, "Expected ':'");
+            const value = this.parseExpression();
+
+            properties.push({key, value, kind: 'PropertyLiteral'} as PropertyLiteral);
+            if(this.at().type != TokenType.CloseBrace) {
+                this.consumeAndExpect(TokenType.Comma, "Expected ','");
+            }
+        }
+
+        this.consumeAndExpect(TokenType.CloseBrace, "Expected closing brace");
+        return {
+            kind: "ObjectLiteral",
+            properties
+        } as ObjectLiteral;
     }
 
     private parseAdditiveExpression(): Expression {

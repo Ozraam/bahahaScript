@@ -1,7 +1,7 @@
-import { AssignmentExpression, BinaryExpression,Identifier } from "../../interpretor/ast.ts";
+import { AssignmentExpression, BinaryExpression,Identifier, ObjectLiteral } from "../../interpretor/ast.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
-import { NumberValue,RuntimeValue,MK_NULL } from "../values.ts";
+import { NumberValue,RuntimeValue,MK_NULL, ObjectValue } from "../values.ts";
 
 function evalNumericExpression(operator: string, left: NumberValue, right: NumberValue): RuntimeValue {
     switch(operator) {
@@ -50,4 +50,15 @@ export function evalAssignmentExpression(node: AssignmentExpression, env: Enviro
     env.assignVar(identifier.symbol, value);
 
     return value;
+}
+
+export function evalObjectExpression(obj: ObjectLiteral, env: Environment) : RuntimeValue {
+    const object = { type: "object", properties: new Map() } as ObjectValue;
+    for(const { key, value } of obj.properties) {
+        const runtimeValue : RuntimeValue = value  ? evaluate(value, env) : env.getVar(key);
+
+
+        object.properties.set(key, runtimeValue);
+    }
+    return object;
 }

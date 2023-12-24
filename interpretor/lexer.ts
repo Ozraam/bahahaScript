@@ -14,6 +14,8 @@ export enum TokenType {
     BinaryOperator,
     OpenBrace,
     CloseBrace,
+    openBracket,
+    closeBracket,
 
 
     EOF, // End of file

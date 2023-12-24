@@ -1,7 +1,7 @@
 import { ValueTypes, RuntimeValue, NumberValue, MK_NULL } from "./values.ts";
-import { AssignmentExpression, BinaryExpression, Identifier, NodeType, NumericLiteral, Program, Statement, VariableDeclaration } from "../interpretor/ast.ts";
+import { AssignmentExpression, BinaryExpression, Identifier, NodeType, NumericLiteral, ObjectLiteral, Program, Statement, VariableDeclaration } from "../interpretor/ast.ts";
 import Environment from "./environment.ts";
-import { evalAssignmentExpression, evalIdentifier,evaluateBinaryExpression } from "./eval/expressions.ts";
+import { evalAssignmentExpression, evalIdentifier,evalObjectExpression,evaluateBinaryExpression } from "./eval/expressions.ts";
 import { evalProgram, evalVariableDeclaration } from "./eval/statements.ts";
 
 
@@ -12,6 +12,10 @@ export function evaluate(astNode: Statement, env: Environment): RuntimeValue {
         
         case "Identifier":
             return evalIdentifier(astNode as Identifier, env);
+
+        case "ObjectLiteral":
+            return evalObjectExpression(astNode as ObjectLiteral, env);
+
         case "BinaryExpression":
             return evaluateBinaryExpression(astNode as BinaryExpression, env);
         case "NumericLiteral":
