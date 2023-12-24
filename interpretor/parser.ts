@@ -1,4 +1,4 @@
-import { Statement, Program, Expression, BinaryExpression, NumberLiteral, Identifier, NullLiteral } from "./ast.ts";
+import { Statement, Program, Expression, BinaryExpression, NumericLiteral, Identifier } from "./ast.ts";
 import { tokenize, Token, TokenType} from "./lexer.ts";
 
 export default class Parser {
@@ -43,8 +43,21 @@ export default class Parser {
     }
 
     private parseStatement(): Statement {
-        // skip to parseExpression
-        return this.parseExpression();
+        switch(this.at().type) {
+            case TokenType.Let:
+            case TokenType.Const:
+                return this.parseVariableDeclaration();
+
+            default:
+                return this.parseExpression();
+        }
+    }
+
+    private parseVariableDeclaration(): Statement {
+        const isConst = this.consume().type == TokenType.Const;
+        const identifier = this.consumeAndExpect(TokenType.Identifier, "Expected identifier").value;
+
+        if(this.at().type == TokenType.Semicolon)
     }
 
     private parseExpression(): Expression {
@@ -93,14 +106,8 @@ export default class Parser {
         switch(token) {
             case TokenType.Identifier:
                 return { kind: "Identifier", symbol: this.consume().value } as Identifier;
-
-            case TokenType.Null:
-                this.consume();
-                return { kind: "NullLiteral", value: null } as NullLiteral;
-
-
             case TokenType.Number:
-                return { kind: "NumberLiteral", value: Number(this.consume().value) } as NumberLiteral;
+                return { kind: "NumericLiteral", value: Number(this.consume().value) } as NumericLiteral;
 
             case TokenType.OpenParenthesis: {
                 this.consume();

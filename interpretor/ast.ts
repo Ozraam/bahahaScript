@@ -1,10 +1,13 @@
 // deno-lint-ignore-file no-empty-interface
 export type NodeType = 
+    // Statements
     | "Program" 
+    | "VariableDeclaration"
+
+    // Expressions
     | "BinaryExpression"
-    | "NullLiteral"
     | "Identifier" 
-    | "NumberLiteral"
+    | "NumericLiteral"
 
 export interface Statement {
     kind: NodeType;
@@ -14,6 +17,18 @@ export interface Program extends Statement {
     kind: "Program";
     body: Statement[];
 }
+
+export interface VariableDeclaration extends Statement {
+    kind: "VariableDeclaration";
+    const: boolean;
+    identifier: string;
+    value?: Expression;
+}
+
+
+
+
+
 
 export interface Expression extends Statement {}
 
@@ -29,12 +44,8 @@ export interface Identifier extends Expression {
     symbol: string;
 }
 
-export interface NumberLiteral extends Expression {
-    kind: "NumberLiteral";
+export interface NumericLiteral extends Expression {
+    kind: "NumericLiteral";
     value: number;
 }
 
-export interface NullLiteral extends Expression {
-    kind: "NullLiteral";
-    value: null;
-}

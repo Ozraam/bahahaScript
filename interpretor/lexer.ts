@@ -1,11 +1,11 @@
 export enum TokenType {
     // Literals
-    Null,
     Number,
     Identifier,
 
     // Keywords
     Let,
+    Const,
 
     // Grouping and operators
     Equals,
@@ -17,7 +17,7 @@ export enum TokenType {
 
 const KEYWORDS : Record<string, TokenType> = {
     "let": TokenType.Let,
-    "null": TokenType.Null,
+    "const": TokenType.Const,
 };
 
 export interface Token {
