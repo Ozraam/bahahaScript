@@ -1,5 +1,10 @@
-import { RuntimeValue } from "./values.ts";
+import { MK_BOOLEAN, MK_NULL, RuntimeValue } from "./values.ts";
 
+function setupEnv(env: Environment) {
+    env.declareVar("null", MK_NULL(), true);
+    env.declareVar("true", MK_BOOLEAN(true), true);
+    env.declareVar("false", MK_BOOLEAN(false), true);
+}
 
 export default class Environment {
     private parent?: Environment;
@@ -8,9 +13,14 @@ export default class Environment {
     private constants: Set<string>;
 
     constructor(parent?: Environment) {
+        const global = parent === undefined;
         this.parent = parent;
         this.variables = new Map();
         this.constants = new Set();
+
+        if(global) {
+            setupEnv(this);
+        }
     }
 
     public declareVar(varname: string, value: RuntimeValue, constant : boolean = false): RuntimeValue {
@@ -52,5 +62,13 @@ export default class Environment {
 
         console.error("Variable", varname, "not declared");
         Deno.exit(1);
+    }
+
+    static baseEnv(): Environment {
+        const env = new Environment();
+        env.declareVar("null", MK_NULL(), true);
+        env.declareVar("true", MK_BOOLEAN(true), true);
+        env.declareVar("false", MK_BOOLEAN(false), true);
+        return env;
     }
 }

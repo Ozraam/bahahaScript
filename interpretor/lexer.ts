@@ -12,8 +12,14 @@ export enum TokenType {
     OpenParenthesis,
     CloseParenthesis,
     BinaryOperator,
+    OpenBrace,
+    CloseBrace,
+
+
     EOF, // End of file
     Semicolon,
+    Comma,
+    Colon,
 }
 
 const KEYWORDS : Record<string, TokenType> = {
@@ -63,6 +69,18 @@ export function tokenize(src: string): Token[] {
             i++;
         } else if (c === ")") {
             tokens.push({ type: TokenType.CloseParenthesis, value: c });
+            i++;
+        } else if (c === "{") {
+            tokens.push({ type: TokenType.OpenBrace, value: c });
+            i++;
+        } else if (c === "}") {
+            tokens.push({ type: TokenType.CloseBrace, value: c });
+            i++;
+        } else if (c === ",") {
+            tokens.push({ type: TokenType.Comma, value: c });
+            i++;
+        } else if (c === ":") {
+            tokens.push({ type: TokenType.Colon, value: c });
             i++;
         } else if (isBinaryOperator(c)) {
             tokens.push({ type: TokenType.BinaryOperator, value: c });

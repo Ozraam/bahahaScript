@@ -5,10 +5,14 @@ export type NodeType =
     | "VariableDeclaration"
 
     // Expressions
+    | "AssignmentExpression"
+
+    // Literals
+    | "PropertyLiteral"
+    | "ObjectLiteral"
     | "BinaryExpression"
     | "Identifier" 
     | "NumericLiteral"
-    | "AssignmentExpression"
 
 export interface Statement {
     kind: NodeType;
@@ -54,4 +58,15 @@ export interface AssignmentExpression extends Expression {
     kind: "AssignmentExpression";
     assigne: Expression;
     value: Expression;
+}
+
+export interface PropertyLiteral extends Expression {
+    kind: "PropertyLiteral";
+    key: string;
+    value?: Expression;
+}
+
+export interface ObjectLiteral extends Expression {
+    kind: "ObjectLiteral";
+    properties: PropertyLiteral[];
 }
