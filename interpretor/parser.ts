@@ -1,4 +1,4 @@
-import { Statement, Program, Expression, BinaryExpression, NumericLiteral, Identifier } from "./ast.ts";
+import { Statement, Program, Expression, BinaryExpression, NumericLiteral, Identifier, VariableDeclaration, AssignmentExpression } from "./ast.ts";
 import { tokenize, Token, TokenType} from "./lexer.ts";
 
 export default class Parser {
@@ -57,11 +57,42 @@ export default class Parser {
         const isConst = this.consume().type == TokenType.Const;
         const identifier = this.consumeAndExpect(TokenType.Identifier, "Expected identifier").value;
 
-        if(this.at().type == TokenType.Semicolon)
+        if(this.at().type == TokenType.Semicolon) {
+            if(isConst) {
+                console.error("Parser Error: Const variable must be initialized");
+                Deno.exit(1);
+            }
+            this.consume();
+            return { kind: "VariableDeclaration", const: isConst, identifier } as VariableDeclaration;
+        }
+
+        this.consumeAndExpect(TokenType.Equals, "Expected '='");
+
+        const value = this.parseExpression();
+
+        this.consumeAndExpect(TokenType.Semicolon, "Expected ';'");
+        return { kind: "VariableDeclaration", const: isConst, identifier, value } as VariableDeclaration;
     }
 
     private parseExpression(): Expression {
-        return this.parseAdditiveExpression();
+        return this.parseAssignmentExpression();
+    }
+
+    private parseAssignmentExpression(): Expression {
+        const left = this.parseAdditiveExpression();
+
+        if(this.at().type == TokenType.Equals) {
+            this.consume();
+            const right = this.parseAssignmentExpression();
+
+            return {
+                kind: "AssignmentExpression",
+                assigne: left,
+                value: right
+            } as AssignmentExpression;
+        }
+
+        return left;
     }
 
     private parseAdditiveExpression(): Expression {

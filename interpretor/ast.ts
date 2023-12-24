@@ -8,6 +8,7 @@ export type NodeType =
     | "BinaryExpression"
     | "Identifier" 
     | "NumericLiteral"
+    | "AssignmentExpression"
 
 export interface Statement {
     kind: NodeType;
@@ -49,3 +50,8 @@ export interface NumericLiteral extends Expression {
     value: number;
 }
 
+export interface AssignmentExpression extends Expression {
+    kind: "AssignmentExpression";
+    assigne: Expression;
+    value: Expression;
+}

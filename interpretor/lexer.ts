@@ -13,6 +13,7 @@ export enum TokenType {
     CloseParenthesis,
     BinaryOperator,
     EOF, // End of file
+    Semicolon,
 }
 
 const KEYWORDS : Record<string, TokenType> = {
@@ -67,6 +68,9 @@ export function tokenize(src: string): Token[] {
             tokens.push({ type: TokenType.BinaryOperator, value: c });
             i++;
         } else if (isWhitespace(c)) {
+            i++;
+        } else if(c === ";") {
+            tokens.push({ type: TokenType.Semicolon, value: c });
             i++;
         } else {
             // Check for multi-character tokens
