@@ -22,6 +22,7 @@ export enum TokenType {
     Semicolon,
     Comma,
     Colon,
+    Dot,
 }
 
 const KEYWORDS : Record<string, TokenType> = {
@@ -78,13 +79,23 @@ export function tokenize(src: string): Token[] {
         } else if (c === "}") {
             tokens.push({ type: TokenType.CloseBrace, value: c });
             i++;
+        } else if (c === "[") {
+            tokens.push({ type: TokenType.openBracket, value: c });
+            i++;
+        } else if (c === "]") {
+            tokens.push({ type: TokenType.closeBracket, value: c });
+            i++;
         } else if (c === ",") {
             tokens.push({ type: TokenType.Comma, value: c });
             i++;
         } else if (c === ":") {
             tokens.push({ type: TokenType.Colon, value: c });
             i++;
-        } else if (isBinaryOperator(c)) {
+        } else if (c === ".") {
+            tokens.push({ type: TokenType.Dot, value: c });
+            i++;
+        }
+        else if (isBinaryOperator(c)) {
             tokens.push({ type: TokenType.BinaryOperator, value: c });
             i++;
         } else if (isWhitespace(c)) {
