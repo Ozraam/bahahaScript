@@ -1,9 +1,16 @@
-import { MK_BOOLEAN, MK_NULL, RuntimeValue } from "./values.ts";
+import { MK_BOOLEAN, MK_NATIVE_FUNCTION, MK_NULL, RuntimeValue } from "./values.ts";
 
 function setupEnv(env: Environment) {
+    // Create global variables
     env.declareVar("null", MK_NULL(), true);
     env.declareVar("true", MK_BOOLEAN(true), true);
     env.declareVar("false", MK_BOOLEAN(false), true);
+
+    // Create global functions
+    env.declareVar("print", MK_NATIVE_FUNCTION((args: RuntimeValue[]) => {
+        console.log(...args);
+        return MK_NULL();
+    }), true);
 }
 
 export default class Environment {

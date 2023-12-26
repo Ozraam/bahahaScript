@@ -1,7 +1,7 @@
-import { AssignmentExpression, BinaryExpression,Identifier, ObjectLiteral } from "../../interpretor/ast.ts";
+import { AssignmentExpression, BinaryExpression,CallExpression,Identifier, ObjectLiteral } from "../../interpretor/ast.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
-import { NumberValue,RuntimeValue,MK_NULL, ObjectValue } from "../values.ts";
+import { NumberValue,RuntimeValue,MK_NULL, ObjectValue, FunctionCall, NativeFunctionValue } from "../values.ts";
 
 function evalNumericExpression(operator: string, left: NumberValue, right: NumberValue): RuntimeValue {
     switch(operator) {
@@ -61,4 +61,18 @@ export function evalObjectExpression(obj: ObjectLiteral, env: Environment) : Run
         object.properties.set(key, runtimeValue);
     }
     return object;
+}
+
+export function evalCallExpression(expression: CallExpression, env: Environment) {
+    const args = expression.args.map(arg => evaluate(arg, env));
+    const fn = evaluate(expression.callee, env);
+
+    if(fn.type != "native_function") {
+        console.error("Calling non-function " + JSON.stringify(fn));
+        Deno.exit(1);
+    }
+
+    const result = (fn as NativeFunctionValue).fn(args, env);
+
+    return result;
 }

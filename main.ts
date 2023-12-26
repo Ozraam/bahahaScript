@@ -11,7 +11,7 @@ async function run(filename: string) {
     const program = parser.produceAST(file);
     
     const result = evaluate(program, env);
-    console.log(result);
+    // console.log(result);
 }
 
 function repl() {

@@ -1,7 +1,7 @@
 import { ValueTypes, RuntimeValue, NumberValue, MK_NULL } from "./values.ts";
-import { AssignmentExpression, BinaryExpression, Identifier, NodeType, NumericLiteral, ObjectLiteral, Program, Statement, VariableDeclaration } from "../interpretor/ast.ts";
+import { AssignmentExpression, BinaryExpression, CallExpression, Identifier, NodeType, NumericLiteral, ObjectLiteral, Program, Statement, VariableDeclaration } from "../interpretor/ast.ts";
 import Environment from "./environment.ts";
-import { evalAssignmentExpression, evalIdentifier,evalObjectExpression,evaluateBinaryExpression } from "./eval/expressions.ts";
+import { evalAssignmentExpression, evalCallExpression, evalIdentifier,evalObjectExpression,evaluateBinaryExpression } from "./eval/expressions.ts";
 import { evalProgram, evalVariableDeclaration } from "./eval/statements.ts";
 
 
@@ -30,8 +30,11 @@ export function evaluate(astNode: Statement, env: Environment): RuntimeValue {
         case "AssignmentExpression":
             return evalAssignmentExpression(astNode as AssignmentExpression, env);
         
+        case "CallExpression":
+            return evalCallExpression(astNode as CallExpression, env);
+
         default:
-            console.error("Unknown AST Node:", astNode.kind);
+            console.error("Unknown AST Node:", astNode);
             Deno.exit(1);
     }
 }
