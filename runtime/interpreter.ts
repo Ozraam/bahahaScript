@@ -1,5 +1,5 @@
-import { ValueTypes, RuntimeValue, NumberValue, MK_NULL } from "./values.ts";
-import { AssignmentExpression, BinaryExpression, CallExpression, FunctionDeclaration, Identifier, NodeType, NumericLiteral, ObjectLiteral, Program, Statement, VariableDeclaration } from "../interpretor/ast.ts";
+import { ValueTypes, RuntimeValue, NumberValue, MK_NULL, StringValue } from "./values.ts";
+import { AssignmentExpression, BinaryExpression, CallExpression, FunctionDeclaration, Identifier, NodeType, NumericLiteral, ObjectLiteral, Program, Statement, StringLiteral, VariableDeclaration } from "../interpretor/ast.ts";
 import Environment from "./environment.ts";
 import { evalAssignmentExpression, evalCallExpression, evalIdentifier,evalObjectExpression,evaluateBinaryExpression } from "./eval/expressions.ts";
 import { evalFunctionDeclaration, evalProgram, evalVariableDeclaration } from "./eval/statements.ts";
@@ -23,6 +23,12 @@ export function evaluate(astNode: Statement, env: Environment): RuntimeValue {
                 value: (astNode as NumericLiteral).value, 
                 type: "number" 
             } as NumberValue;
+        
+        case "StringLiteral":
+            return { 
+                value: (astNode as StringLiteral).value, 
+                type: "string" 
+            } as StringValue;
         
         case "VariableDeclaration":
             return evalVariableDeclaration(astNode as VariableDeclaration, env);

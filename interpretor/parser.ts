@@ -1,4 +1,4 @@
-import { Statement, Program, Expression, BinaryExpression, NumericLiteral, Identifier, VariableDeclaration, AssignmentExpression, PropertyLiteral, ObjectLiteral, CallExpression, MemberExpression, FunctionDeclaration } from "./ast.ts";
+import { Statement, Program, Expression, BinaryExpression, NumericLiteral, Identifier, VariableDeclaration, AssignmentExpression, PropertyLiteral, ObjectLiteral, CallExpression, MemberExpression, FunctionDeclaration, StringLiteral } from "./ast.ts";
 import { tokenize, Token, TokenType} from "./lexer.ts";
 
 export default class Parser {
@@ -135,7 +135,7 @@ export default class Parser {
 
     parseObjectExpression() : Expression {
         if(this.at().type != TokenType.OpenBrace) {
-            return this.parseAdditiveExpression();
+            return this.parseStringExpression();
         }
 
         this.consume();
@@ -167,6 +167,14 @@ export default class Parser {
             kind: "ObjectLiteral",
             properties
         } as ObjectLiteral;
+    }
+
+    private parseStringExpression(): Expression {
+        if(this.at().type == TokenType.String) {
+            return { kind: "StringLiteral", value: this.consume().value } as StringLiteral;
+        }
+
+        return this.parseAdditiveExpression();
     }
 
     private parseAdditiveExpression(): Expression {

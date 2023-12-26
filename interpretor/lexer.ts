@@ -24,6 +24,9 @@ export enum TokenType {
     Comma,
     Colon,
     Dot,
+    String,
+
+    Unknown,
 }
 
 const KEYWORDS : Record<string, TokenType> = {
@@ -105,7 +108,18 @@ export function tokenize(src: string): Token[] {
         } else if(c === ";") {
             tokens.push({ type: TokenType.Semicolon, value: c });
             i++;
-        } else {
+        } else if(c === "\"") {
+            let value = "";
+            i++;
+            while(src[i] !== "\"" && src[i] !== undefined) {
+                value += src[i];
+                i++;
+            }
+            tokens.push({ type: TokenType.String, value: value });
+            i++;
+        } 
+        
+        else {
             // Check for multi-character tokens
 
 

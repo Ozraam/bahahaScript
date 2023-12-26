@@ -4,6 +4,7 @@ import Environment from "./environment.ts";
 export type ValueTypes =
     | "null"
     | "number"
+    | "string"
     | "boolean"
     | "object"
     | "native_function"
@@ -11,6 +12,12 @@ export type ValueTypes =
 
 export interface RuntimeValue {
     type: ValueTypes;
+}
+
+export interface SimpleValue extends RuntimeValue {
+    type: ValueTypes;
+    // deno-lint-ignore no-explicit-any
+    value: any;
 }
 
 export interface NullValue extends RuntimeValue {
@@ -21,6 +28,11 @@ export interface NullValue extends RuntimeValue {
 export interface NumberValue extends RuntimeValue {
     type: "number";
     value: number;
+}
+
+export interface StringValue extends RuntimeValue {
+    type: "string";
+    value: string;
 }
 
 export interface BooleanValue extends RuntimeValue {
