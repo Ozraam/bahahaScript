@@ -1,7 +1,7 @@
 import { AssignmentExpression, BinaryExpression,CallExpression,Identifier, ObjectLiteral } from "../../interpretor/ast.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
-import { NumberValue,RuntimeValue,MK_NULL, ObjectValue, FunctionCall, NativeFunctionValue } from "../values.ts";
+import { NumberValue,RuntimeValue,MK_NULL, ObjectValue, FunctionCall, NativeFunctionValue, FunctionValue } from "../values.ts";
 
 function evalNumericExpression(operator: string, left: NumberValue, right: NumberValue): RuntimeValue {
     switch(operator) {
@@ -67,12 +67,28 @@ export function evalCallExpression(expression: CallExpression, env: Environment)
     const args = expression.args.map(arg => evaluate(arg, env));
     const fn = evaluate(expression.callee, env);
 
-    if(fn.type != "native_function") {
-        console.error("Calling non-function " + JSON.stringify(fn));
-        Deno.exit(1);
+    if(fn.type == "native_function") {
+        const result = (fn as NativeFunctionValue).fn(args, env);
+        return result;
+        
+    } else if(fn.type == "function") {
+        const fnValue = fn as FunctionValue;
+        const scope = new Environment(fnValue.env);
+
+        for(let i = 0; i < fnValue.parameters.length; i++) {
+            scope.declareVar(fnValue.parameters[i], args[i], true);
+        }
+
+        let lastEvaluated: RuntimeValue = MK_NULL();
+
+        for(const statement of fnValue.body) {
+            lastEvaluated = evaluate(statement, scope);
+        }
+
+        return lastEvaluated;
     }
 
-    const result = (fn as NativeFunctionValue).fn(args, env);
-
-    return result;
+    
+    console.error("Calling non-function " + fn.type);
+    Deno.exit(1);
 }

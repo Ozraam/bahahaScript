@@ -1,4 +1,4 @@
-import { Statement, Program, Expression, BinaryExpression, NumericLiteral, Identifier, VariableDeclaration, AssignmentExpression, PropertyLiteral, ObjectLiteral, CallExpression, MemberExpression } from "./ast.ts";
+import { Statement, Program, Expression, BinaryExpression, NumericLiteral, Identifier, VariableDeclaration, AssignmentExpression, PropertyLiteral, ObjectLiteral, CallExpression, MemberExpression, FunctionDeclaration } from "./ast.ts";
 import { tokenize, Token, TokenType} from "./lexer.ts";
 
 export default class Parser {
@@ -48,9 +48,47 @@ export default class Parser {
             case TokenType.Const:
                 return this.parseVariableDeclaration();
 
+            case TokenType.Fn:
+                return this.parseFunctionDeclaration();
+
             default:
                 return this.parseExpression();
         }
+    }
+
+    parseFunctionDeclaration(): Statement {
+        this.consume(); // eat fn
+        const identifier = this.consumeAndExpect(TokenType.Identifier, "Expected identifier").value;
+        this.consumeAndExpect(TokenType.OpenParenthesis, "Expected opening parenthesis");
+
+        const parameters = new Array<string>();
+        while(this.at().type != TokenType.CloseParenthesis) {
+            const param = this.consumeAndExpect(TokenType.Identifier, "Expected identifier for parameters name").value;
+            parameters.push(param);
+
+            if(this.at().type != TokenType.CloseParenthesis) {
+                this.consumeAndExpect(TokenType.Comma, "Expected ','");
+            }
+        }
+
+        this.consumeAndExpect(TokenType.CloseParenthesis, "Expected closing parenthesis");
+
+        this.consumeAndExpect(TokenType.OpenBrace, "Expected opening brace");
+
+        const body : Statement[] = []
+
+        while(this.at().type != TokenType.CloseBrace && this.notEOF()) {
+            body.push(this.parseStatement());
+        }
+
+        this.consumeAndExpect(TokenType.CloseBrace, "Expected closing brace");
+
+        return {
+            kind: "FunctionDeclaration",
+            identifier,
+            parameters,
+            body
+        } as FunctionDeclaration;
     }
 
     private parseVariableDeclaration(): Statement {

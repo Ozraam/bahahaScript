@@ -1,3 +1,4 @@
+import { Statement } from "../interpretor/ast.ts";
 import Environment from "./environment.ts";
 
 export type ValueTypes =
@@ -6,6 +7,7 @@ export type ValueTypes =
     | "boolean"
     | "object"
     | "native_function"
+    | "function";
 
 export interface RuntimeValue {
     type: ValueTypes;
@@ -36,6 +38,14 @@ export type FunctionCall = (args: RuntimeValue[], env: Environment) => RuntimeVa
 export interface NativeFunctionValue extends RuntimeValue {
     type: "native_function";
     fn: FunctionCall;
+}
+
+export interface FunctionValue extends RuntimeValue {
+    type: "function";
+    identifier: string;
+    parameters: string[];
+    body: Statement[];
+    env: Environment;
 }
 
 export function MK_NULL() : NullValue {

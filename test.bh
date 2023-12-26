@@ -1,3 +1,13 @@
-const  foo = 5;
+fn add(x, y) {
+    let result = x + y;
+    print(result)
 
-print(foo, true)
+    fn sub(i, o) {
+        let result = i - o;
+        result
+    }
+
+    sub
+}
+
+print(add(5, 8)(9, 1))
