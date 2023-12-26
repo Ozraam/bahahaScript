@@ -1,7 +1,6 @@
 import Parser from "./interpretor/parser.ts";
 import Environment from "./runtime/environment.ts";
 import { evaluate } from "./runtime/interpreter.ts";
-import { MK_BOOLEAN, MK_NULL, MK_NUMBER, NumberValue } from "./runtime/values.ts";
 
 async function run(filename: string) {
     const parser = new Parser();
@@ -10,8 +9,7 @@ async function run(filename: string) {
     const file = await Deno.readTextFile(filename);
     const program = parser.produceAST(file);
     
-    const result = evaluate(program, env);
-    // console.log(result);
+    evaluate(program, env);
 }
 
 function repl() {
