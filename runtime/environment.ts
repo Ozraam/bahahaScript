@@ -49,7 +49,7 @@ export default class Environment {
         }
     }
 
-    public declareVar(varname: string, value: RuntimeValue, constant : boolean = false): RuntimeValue {
+    public declareVar(varname: string, value: RuntimeValue, constant = false): RuntimeValue {
         if(this.variables.has(varname)) {
             console.error("Variable", varname, "already declared");
             Deno.exit(1);

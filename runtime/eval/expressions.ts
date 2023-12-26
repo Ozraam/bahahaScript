@@ -1,7 +1,7 @@
 import { AssignmentExpression, BinaryExpression,CallExpression,Identifier, ObjectLiteral } from "../../interpretor/ast.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
-import { NumberValue,RuntimeValue,MK_NULL, ObjectValue, FunctionCall, NativeFunctionValue, FunctionValue } from "../values.ts";
+import { NumberValue,RuntimeValue,MK_NULL, ObjectValue, NativeFunctionValue, FunctionValue } from "../values.ts";
 
 function evalNumericExpression(operator: string, left: NumberValue, right: NumberValue): RuntimeValue {
     switch(operator) {
