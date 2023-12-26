@@ -18,7 +18,7 @@ function customPrint(args: RuntimeValue[]) : RuntimeValue {
             case "number":
             case "boolean":
             case "null":
-                output += (arg as SimpleValue).value.toString();
+                output += ((arg as SimpleValue).value ?? "null").toString();
                 break;
             case "object":
             case "function":

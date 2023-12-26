@@ -1,13 +1,8 @@
-fn add(x, y) {
-    let result = x + y;
-    print(result)
-
-    fn sub(i, o) {
-        let result = i - o;
-        result
+const testobj = {
+    a: 5,
+    b: {
+        c: 4
     }
+};
 
-    sub
-}
-
-print("add(5, 8) \", "(9, 1)", " ", add(1,1)(5,5))
+print(testobj)

@@ -1,4 +1,4 @@
-import { AssignmentExpression, BinaryExpression,CallExpression,Identifier, ObjectLiteral } from "../../interpretor/ast.ts";
+import { AssignmentExpression, BinaryExpression,CallExpression,Identifier, MemberExpression, ObjectLiteral } from "../../interpretor/ast.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
 import { NumberValue,RuntimeValue,MK_NULL, ObjectValue, NativeFunctionValue, FunctionValue } from "../values.ts";
@@ -39,17 +39,46 @@ export function evalIdentifier(identifier: Identifier, env: Environment): Runtim
 }
 
 export function evalAssignmentExpression(node: AssignmentExpression, env: Environment): RuntimeValue {
-    if(node.assigne.kind != "Identifier") {
-        console.error("Assignment to non-identifier");
-        Deno.exit(1);
+    if(node.assigne.kind == "Identifier") {
+        const identifier = node.assigne as Identifier;
+        const value = evaluate(node.value, env);
+
+        env.assignVar(identifier.symbol, value);
+        return value;
+    } else if(node.assigne.kind == "MemberExpression") {
+        const memberExpression = node.assigne as MemberExpression;
+        const object = evaluate(memberExpression.object, env);
+
+        if(object.type != "object") {
+            console.error("Member access on non-object");
+            Deno.exit(1);
+        }
+
+        if(memberExpression.property.kind != "Identifier") {
+            console.error("Member access with non-identifier");
+            Deno.exit(1);
+        }
+
+        const propertyIdentifier = memberExpression.property as Identifier;
+
+        const property = (object as ObjectValue).properties.get(propertyIdentifier.symbol);
+        
+        if(property == undefined) {
+            console.error("Property not found");
+            Deno.exit(1);
+        }
+
+        const value = evaluate(node.value, env);
+
+        (object as ObjectValue).properties.set(propertyIdentifier.symbol, value);
+
+        return value;
     }
 
-    const identifier = node.assigne as Identifier;
-    const value = evaluate(node.value, env);
+    console.error("Assignment to non-identifier");
+    Deno.exit(1);
 
-    env.assignVar(identifier.symbol, value);
-
-    return value;
+    return MK_NULL();
 }
 
 export function evalObjectExpression(obj: ObjectLiteral, env: Environment) : RuntimeValue {
@@ -91,4 +120,29 @@ export function evalCallExpression(expression: CallExpression, env: Environment)
     
     console.error("Calling non-function " + fn.type);
     Deno.exit(1);
+}
+
+export function evalMemberExpression(node: MemberExpression, env: Environment): RuntimeValue {
+    const object = evaluate(node.object, env);
+    
+    if(object.type != "object") {
+        console.error("Member access on non-object");
+        Deno.exit(1);
+    }
+
+    if(node.property.kind != "Identifier") {
+        console.error("Member access with non-identifier");
+        Deno.exit(1);
+    }
+
+    const propertyIdentifier = node.property as Identifier;
+
+    const property = (object as ObjectValue).properties.get(propertyIdentifier.symbol);
+    
+    if(property == undefined) {
+        console.error("Property not found");
+        Deno.exit(1);
+    }
+
+    return property;
 }
