@@ -10,3 +10,9 @@ fn add(a, b) {
 print(testobj)
 print(add)
 print(add(5, 6))
+
+const bool = 6 > 5 && 5 > 4;
+print(bool)
+
+const str = "hello" + " world 3+5 " + bool;
+print(str)

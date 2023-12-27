@@ -107,6 +107,7 @@ export default class Parser {
         this.consumeAndExpect(TokenType.Equals, "Expected '='");
 
         const value = this.parseExpression();
+        
 
         this.consumeAndExpect(TokenType.Semicolon, "Expected ';'");
         return { kind: "VariableDeclaration", const: isConst, identifier, value } as VariableDeclaration;
@@ -135,7 +136,7 @@ export default class Parser {
 
     parseObjectExpression() : Expression {
         if(this.at().type != TokenType.OpenBrace) {
-            return this.parseStringExpression();
+            return this.parseBooleanAdditiveExpression();
         }
 
         this.consume();
@@ -169,12 +170,58 @@ export default class Parser {
         } as ObjectLiteral;
     }
 
-    private parseStringExpression(): Expression {
-        if(this.at().type == TokenType.String) {
-            return { kind: "StringLiteral", value: this.consume().value } as StringLiteral;
+    parseBooleanAdditiveExpression() : Expression {
+        let left = this.parseBooleanMultiplicativeExpression();
+
+        while(this.at().value == "||") {
+            const operator = this.consume().value;
+            const right = this.parseBooleanMultiplicativeExpression();
+
+            left = {
+                kind: "BinaryExpression",
+                operator,
+                left,
+                right
+            } as BinaryExpression;
         }
 
-        return this.parseAdditiveExpression();
+        return left;
+    }
+
+    parseBooleanMultiplicativeExpression() : Expression {
+        let left = this.parseBooleanUnaryExpression();
+
+        while(this.at().value == "&&") {
+            const operator = this.consume().value;
+            const right = this.parseBooleanUnaryExpression();
+
+            left = {
+                kind: "BinaryExpression",
+                operator,
+                left,
+                right
+            } as BinaryExpression;
+        }
+
+        return left;
+    }
+
+    parseBooleanUnaryExpression() : Expression {
+        let left = this.parseAdditiveExpression();
+        
+        while(this.at().value == "==" || this.at().value == "!=" || this.at().value == "<" || this.at().value == ">" || this.at().value == "<=" || this.at().value == ">=") {
+            const operator = this.consume().value;
+            const right = this.parseAdditiveExpression();
+
+            left = {
+                kind: "BinaryExpression",
+                operator,
+                left,
+                right
+            } as BinaryExpression;
+        }
+
+        return left;
     }
 
     private parseAdditiveExpression(): Expression {
@@ -308,6 +355,9 @@ export default class Parser {
                 );
                 return expression;
             }
+
+            case TokenType.String:
+                return { kind: "StringLiteral", value: this.consume().value } as StringLiteral;
 
             default:
                 console.error("Unexpected token found during parsing: ", this.at());

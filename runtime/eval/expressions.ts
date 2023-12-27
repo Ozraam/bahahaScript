@@ -16,6 +16,22 @@ function evalNumericExpression(operator: string, left: NumberValue, right: Numbe
             return { type: "number", value: left.value / right.value } as NumberValue;
         case "%":
             return { type: "number", value: left.value % right.value } as NumberValue;
+        case "==":
+            return { type: "boolean", value: left.value == right.value } as RuntimeValue;
+        case "!=":
+            return { type: "boolean", value: left.value != right.value } as RuntimeValue;
+        case ">":
+            return { type: "boolean", value: left.value > right.value } as RuntimeValue;
+        case "<":
+            return { type: "boolean", value: left.value < right.value } as RuntimeValue;
+        case ">=":
+            return { type: "boolean", value: left.value >= right.value } as RuntimeValue;
+        case "<=":
+            return { type: "boolean", value: left.value <= right.value } as RuntimeValue;
+        case "&&":
+            return { type: "boolean", value: left.value && right.value } as RuntimeValue;
+        case "||":
+            return { type: "boolean", value: left.value || right.value } as RuntimeValue;
         default:
             console.error("Unknown operator:", operator);
             Deno.exit(1);
@@ -26,12 +42,7 @@ export function evaluateBinaryExpression(binop: BinaryExpression, env: Environme
     const left = evaluate(binop.left, env);
     const right = evaluate(binop.right, env);
 
-    if(left.type == "number" && right.type == "number") {
-        return evalNumericExpression(binop.operator, left as NumberValue, right as NumberValue);
-    }
-
-    // One or both of the operands are Null
-    return MK_NULL();
+    return evalNumericExpression(binop.operator, left as NumberValue, right as NumberValue);
 }
 
 export function evalIdentifier(identifier: Identifier, env: Environment): RuntimeValue {

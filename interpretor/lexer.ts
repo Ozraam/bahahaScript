@@ -59,6 +59,10 @@ function isLetter(c: string) : boolean {
     return /[a-z]/i.test(c);
 }
 
+function isBooleanOperator(c: string) : boolean {
+    return c === "=" || c === "!" || c === "<" || c === ">" || c === "&" || c === "|";
+}
+
 function token(type: TokenType, value: string) : Token {
     return { type, value };
 }
@@ -142,7 +146,17 @@ export function tokenize(src: string): Token[] {
                 const type = typeof reservedType == "number" ? reservedType : TokenType.Identifier;
 
                 tokens.push(token(type, value));
-            } else {
+            } else if (isBooleanOperator(c)) {
+                let value = "";
+                while(isBooleanOperator(src[i])) {
+                    value += src[i];
+                    i++;
+                }
+                
+                tokens.push(token(TokenType.BinaryOperator, value));
+            }
+            
+            else {
                 console.log("Unexpected character: " + c);
                 Deno.exit(1); 
             }
