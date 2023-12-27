@@ -1,5 +1,5 @@
-import { customPrint } from "./nativeFunction.ts";
-import { MK_BOOLEAN, MK_NATIVE_FUNCTION, MK_NULL, RuntimeValue } from "./values.ts";
+import { customPrint, notBool } from "./nativeFunction.ts";
+import { BooleanValue, MK_BOOLEAN, MK_NATIVE_FUNCTION, MK_NULL, RuntimeValue } from "./values.ts";
 
 function setupEnv(env: Environment) {
     // Create global variables
@@ -9,6 +9,7 @@ function setupEnv(env: Environment) {
 
     // Create global functions
     env.declareVar("print", MK_NATIVE_FUNCTION(customPrint), true);
+    env.declareVar("not", MK_NATIVE_FUNCTION(notBool), true);
 }
 
 export default class Environment {

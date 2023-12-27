@@ -1,4 +1,4 @@
-import { RuntimeValue, SimpleValue, MK_NULL, ObjectValue, FunctionValue } from "./values.ts";
+import { RuntimeValue, SimpleValue, MK_NULL, ObjectValue, FunctionValue, BooleanValue, MK_BOOLEAN } from "./values.ts";
 
 export function customPrint(args: RuntimeValue[]) : RuntimeValue {
     let output = "";
@@ -38,4 +38,8 @@ function printObjectRecursive(obj: RuntimeValue, depth = 1) : string {
     }
     output += indentEnd + "}";
     return output;
+}
+
+export function notBool(args: RuntimeValue[]) {
+  return MK_BOOLEAN(!(args[0] as BooleanValue).value);
 }
