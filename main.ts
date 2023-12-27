@@ -1,6 +1,7 @@
 import Parser from "./interpretor/parser.ts";
 import Environment from "./runtime/environment.ts";
 import { evaluate } from "./runtime/interpreter.ts";
+import { customPrint } from "./runtime/nativeFunction.ts";
 
 async function run(filename: string) {
     const parser = new Parser();
@@ -26,7 +27,7 @@ function repl() {
         const program = parser.produceAST(input);
 
         const result = evaluate(program, env);
-        console.log(result);
+        customPrint([result]);
     }
 }
 

@@ -1,8 +1,12 @@
 const testobj = {
     a: 5,
-    b: {
-        c: 4
-    }
+    b: false,
 };
 
+fn add(a, b) {
+    a + b
+}
+
 print(testobj)
+print(add)
+print(add(5, 6))

@@ -1,4 +1,5 @@
-import { MK_BOOLEAN, MK_NATIVE_FUNCTION, MK_NULL, RuntimeValue, SimpleValue } from "./values.ts";
+import { customPrint } from "./nativeFunction.ts";
+import { MK_BOOLEAN, MK_NATIVE_FUNCTION, MK_NULL, RuntimeValue } from "./values.ts";
 
 function setupEnv(env: Environment) {
     // Create global variables
@@ -8,28 +9,6 @@ function setupEnv(env: Environment) {
 
     // Create global functions
     env.declareVar("print", MK_NATIVE_FUNCTION(customPrint), true);
-}
-
-function customPrint(args: RuntimeValue[]) : RuntimeValue {
-    let output = "";
-    for(const arg of args) {
-        switch(arg.type) {
-            case "string":
-            case "number":
-            case "boolean":
-            case "null":
-                output += ((arg as SimpleValue).value ?? "null").toString();
-                break;
-            case "object":
-            case "function":
-            case "native_function":
-                output += arg;
-                break;
-        }
-    }
-    console.log(output);
-    
-    return MK_NULL();
 }
 
 export default class Environment {
