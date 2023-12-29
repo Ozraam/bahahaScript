@@ -95,11 +95,23 @@ export default class Parser {
         const condition = this.parseExpression();
         this.consumeAndExpect(TokenType.CloseParenthesis, "Expected closing parenthesis");
 
-        const then = this.parseBlock();
+        let then : Statement[];
+
+        if(this.at().type == TokenType.OpenBrace) {
+            then = this.parseBlock();
+        } else {
+            then = [this.parseStatement()];
+        }
 
         if(this.at().type == TokenType.Else) {
             this.consume(); // eat else
-            const else_body = this.parseBlock();
+            let else_body : Statement[];
+
+            if(this.at().type == TokenType.OpenBrace) {
+                else_body = this.parseBlock();
+            } else {
+                else_body = [this.parseStatement()];
+            }
 
             return {
                 kind: "IfStatement",
