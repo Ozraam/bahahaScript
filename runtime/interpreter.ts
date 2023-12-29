@@ -1,8 +1,8 @@
 import { RuntimeValue, NumberValue, StringValue } from "./values.ts";
-import { AssignmentExpression, BinaryExpression, CallExpression, FunctionDeclaration, Identifier, MemberExpression, NumericLiteral, ObjectLiteral, Program, Statement, StringLiteral, VariableDeclaration } from "../interpretor/ast.ts";
+import { AssignmentExpression, BinaryExpression, CallExpression, FunctionDeclaration, Identifier, IfStatement, MemberExpression, NumericLiteral, ObjectLiteral, Program, Statement, StringLiteral, VariableDeclaration, WhileStatement } from "../interpretor/ast.ts";
 import Environment from "./environment.ts";
 import { evalAssignmentExpression, evalCallExpression, evalIdentifier,evalMemberExpression,evalObjectExpression,evaluateBinaryExpression } from "./eval/expressions.ts";
-import { evalFunctionDeclaration, evalProgram, evalVariableDeclaration } from "./eval/statements.ts";
+import { evalFunctionDeclaration, evalIfStatement, evalProgram, evalVariableDeclaration, evalWhileStatement } from "./eval/statements.ts";
 
 
 export function evaluate(astNode: Statement, env: Environment): RuntimeValue {
@@ -44,6 +44,12 @@ export function evaluate(astNode: Statement, env: Environment): RuntimeValue {
 
         case "MemberExpression":
             return evalMemberExpression(astNode as MemberExpression, env);
+
+        case "IfStatement":
+            return evalIfStatement(astNode as IfStatement, env);
+        
+        case "WhileStatement":
+            return evalWhileStatement(astNode as WhileStatement, env);
 
         default:
             console.error("Unknown AST Node:", astNode);

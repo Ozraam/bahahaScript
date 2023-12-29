@@ -4,6 +4,9 @@ export type NodeType =
     | "Program" 
     | "VariableDeclaration"
     | "FunctionDeclaration"
+    | "IfStatement"
+    | "WhileStatement"
+
 
     // Expressions
     | "AssignmentExpression"
@@ -41,9 +44,18 @@ export interface FunctionDeclaration extends Statement {
     body: Statement[];
 }
 
+export interface IfStatement extends Statement {
+    kind: "IfStatement";
+    condition: Expression;
+    then: Statement[];
+    else?: Statement[];
+}
 
-
-
+export interface WhileStatement extends Statement {
+    kind: "WhileStatement";
+    condition: Expression;
+    body: Statement[];
+}
 
 
 export interface Expression extends Statement {}

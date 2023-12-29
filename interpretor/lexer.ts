@@ -7,6 +7,9 @@ export enum TokenType {
     Let,
     Const,
     Fn,
+    If,
+    Else,
+    While,
 
     // Grouping and operators
     Equals,
@@ -29,10 +32,13 @@ export enum TokenType {
     Unknown,
 }
 
-const KEYWORDS : Record<string, TokenType> = {
-    "let": TokenType.Let,
-    "const": TokenType.Const,
-    "fn": TokenType.Fn,
+const KEYWORDS : Record<string, {token: TokenType, value: string}> = {
+    "let": {token: TokenType.Let, value: "let"},
+    "const": {token: TokenType.Const, value: "const"},
+    "fn": {token: TokenType.Fn, value: "fn"},
+    "if": {token: TokenType.If, value: "if"},
+    "else": {token: TokenType.Else, value: "else"},
+    "while": {token: TokenType.While, value: "while"},
 };
 
 export interface Token {
@@ -73,10 +79,7 @@ export function tokenize(src: string): Token[] {
     while (i < src.length) {
         const c = src[i];
         
-        if (c === "=") {
-            tokens.push({ type: TokenType.Equals, value: c });
-            i++;
-        } else if (c === "(") {
+        if (c === "(") {
             tokens.push({ type: TokenType.OpenParenthesis, value: c });
             i++;
         } else if (c === ")") {
@@ -119,6 +122,7 @@ export function tokenize(src: string): Token[] {
                 value += src[i];
                 i++;
             }
+
             tokens.push({ type: TokenType.String, value: value });
             i++;
         } 
@@ -142,18 +146,20 @@ export function tokenize(src: string): Token[] {
                 // Add the identifier token
                 const value = src.slice(start, i);
                 const reservedType = KEYWORDS[value];
+                
+                const type = reservedType != undefined ? reservedType : {token: TokenType.Identifier, value: value};
 
-                const type = typeof reservedType == "number" ? reservedType : TokenType.Identifier;
-
-                tokens.push(token(type, value));
+                tokens.push(token(type.token, type.value));
             } else if (isBooleanOperator(c)) {
                 let value = "";
                 while(isBooleanOperator(src[i])) {
                     value += src[i];
                     i++;
                 }
-                
-                tokens.push(token(TokenType.BinaryOperator, value));
+
+                if(value === "=") {
+                    tokens.push(token(TokenType.Equals, value));
+                } else tokens.push(token(TokenType.BinaryOperator, value));
             }
             
             else {

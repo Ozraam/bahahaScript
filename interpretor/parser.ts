@@ -51,6 +51,12 @@ export default class Parser {
             case TokenType.Fn:
                 return this.parseFunctionDeclaration();
 
+            case TokenType.If:
+                return this.parseIfStatement();
+
+            case TokenType.While:
+                return this.parseWhileStatement();
+
             default:
                 return this.parseExpression();
         }
@@ -73,15 +79,7 @@ export default class Parser {
 
         this.consumeAndExpect(TokenType.CloseParenthesis, "Expected closing parenthesis");
 
-        this.consumeAndExpect(TokenType.OpenBrace, "Expected opening brace");
-
-        const body : Statement[] = []
-
-        while(this.at().type != TokenType.CloseBrace && this.notEOF()) {
-            body.push(this.parseStatement());
-        }
-
-        this.consumeAndExpect(TokenType.CloseBrace, "Expected closing brace");
+        const body : Statement[] = this.parseBlock();
 
         return {
             kind: "FunctionDeclaration",
@@ -89,6 +87,59 @@ export default class Parser {
             parameters,
             body
         } as FunctionDeclaration;
+    }
+
+    private parseIfStatement(): Statement {
+        this.consume(); // eat if
+        this.consumeAndExpect(TokenType.OpenParenthesis, "Expected opening parenthesis");
+        const condition = this.parseExpression();
+        this.consumeAndExpect(TokenType.CloseParenthesis, "Expected closing parenthesis");
+
+        const then = this.parseBlock();
+
+        if(this.at().type == TokenType.Else) {
+            this.consume(); // eat else
+            const else_body = this.parseBlock();
+
+            return {
+                kind: "IfStatement",
+                condition,
+                then,
+                else: else_body
+            } as Statement;
+        }
+
+        return {
+            kind: "IfStatement",
+            condition,
+            then
+        } as Statement;
+    }
+
+    private parseWhileStatement(): Statement {
+        this.consume(); // eat while
+        this.consumeAndExpect(TokenType.OpenParenthesis, "Expected opening parenthesis");
+        const condition = this.parseExpression();
+        this.consumeAndExpect(TokenType.CloseParenthesis, "Expected closing parenthesis");
+
+        const body = this.parseBlock();
+
+        return {
+            kind: "WhileStatement",
+            condition,
+            body
+        } as Statement;
+    }
+
+
+    private parseBlock() {
+      this.consumeAndExpect(TokenType.OpenBrace, "Expected opening brace");
+      const body = new Array<Statement>();
+      while (this.at().type != TokenType.CloseBrace && this.notEOF()) {
+        body.push(this.parseStatement());
+      }
+      this.consumeAndExpect(TokenType.CloseBrace, "Expected closing brace");
+      return body;
     }
 
     private parseVariableDeclaration(): Statement {

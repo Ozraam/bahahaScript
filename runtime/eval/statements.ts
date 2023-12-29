@@ -1,7 +1,7 @@
-import { FunctionDeclaration, Program, VariableDeclaration } from "../../interpretor/ast.ts";
+import { FunctionDeclaration, IfStatement, Program, VariableDeclaration, WhileStatement } from "../../interpretor/ast.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
-import { RuntimeValue,MK_NULL, FunctionValue } from "../values.ts";
+import { RuntimeValue,MK_NULL, FunctionValue, BooleanValue } from "../values.ts";
 
 export function evalProgram(program: Program, env: Environment): RuntimeValue {
     let lastEvaluated: RuntimeValue = MK_NULL();
@@ -29,4 +29,48 @@ export function evalFunctionDeclaration(astNode: FunctionDeclaration, env: Envir
     env.declareVar(astNode.identifier, fn, true);
 
     return fn;
+}
+
+export function evalIfStatement(astNode: IfStatement, env: Environment): RuntimeValue {
+    const condition = evaluate(astNode.condition, env);
+
+    if(condition.type !== "boolean") {
+        console.error("If statement condition must be a boolean");
+        Deno.exit(1);
+    }
+
+    let lastEvaluated: RuntimeValue = MK_NULL();
+
+    if((condition as BooleanValue).value) {
+        astNode.then.forEach(stat => {
+            lastEvaluated = evaluate(stat, env);
+        });
+    } else if(astNode.else) {
+        astNode.else.forEach(stat => {
+            lastEvaluated = evaluate(stat, env);
+        });
+    }
+
+    return lastEvaluated;
+}
+
+export function evalWhileStatement(astNode: WhileStatement, env: Environment): RuntimeValue {
+    let condition = evaluate(astNode.condition, env);
+
+    if(condition.type !== "boolean") {
+        console.error("While statement condition must be a boolean");
+        Deno.exit(1);
+    }
+
+    let lastEvaluated: RuntimeValue = MK_NULL();
+
+    while((condition as BooleanValue).value) {
+        astNode.body.forEach(stat => {
+            lastEvaluated = evaluate(stat, env);
+        });
+
+        condition = evaluate(astNode.condition, env);
+    }
+
+    return lastEvaluated;
 }
