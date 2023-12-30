@@ -1,7 +1,7 @@
 import { RuntimeValue, NumberValue, StringValue } from "./values.ts";
-import { AssignmentExpression, BinaryExpression, CallExpression, FunctionDeclaration, Identifier, IfStatement, ImportStatement, MemberExpression, NumericLiteral, ObjectLiteral, Program, Statement, StringLiteral, VariableDeclaration, WhileStatement } from "../interpretor/ast.ts";
+import { ArrayLiteral, AssignmentExpression, BinaryExpression, CallExpression, FunctionDeclaration, Identifier, IfStatement, ImportStatement, MemberExpression, NumericLiteral, ObjectLiteral, Program, Statement, StringLiteral, VariableDeclaration, WhileStatement } from "../interpretor/ast.ts";
 import Environment from "./environment.ts";
-import { evalAssignmentExpression, evalCallExpression, evalIdentifier,evalMemberExpression,evalObjectExpression,evaluateBinaryExpression } from "./eval/expressions.ts";
+import { evalArrayLiteral, evalAssignmentExpression, evalCallExpression, evalIdentifier,evalMemberExpression,evalObjectExpression,evaluateBinaryExpression } from "./eval/expressions.ts";
 import { evalFunctionDeclaration, evalIfStatement, evalImportStatement, evalProgram, evalVariableDeclaration, evalWhileStatement } from "./eval/statements.ts";
 
 
@@ -12,6 +12,9 @@ export function evaluate(astNode: Statement, env: Environment): RuntimeValue {
         
         case "Identifier":
             return evalIdentifier(astNode as Identifier, env);
+        
+        case "ArrayLiteral":
+            return evalArrayLiteral(astNode as ArrayLiteral, env);
 
         case "ObjectLiteral":
             return evalObjectExpression(astNode as ObjectLiteral, env);

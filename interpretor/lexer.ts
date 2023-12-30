@@ -18,8 +18,8 @@ export enum TokenType {
     BinaryOperator,
     OpenBrace,
     CloseBrace,
-    openBracket,
-    closeBracket,
+    OpenBracket,
+    CloseBracket,
 
 
     EOF, // End of file
@@ -94,10 +94,10 @@ export function tokenize(src: string): Token[] {
             tokens.push({ type: TokenType.CloseBrace, value: c });
             i++;
         } else if (c === "[") {
-            tokens.push({ type: TokenType.openBracket, value: c });
+            tokens.push({ type: TokenType.OpenBracket, value: c });
             i++;
         } else if (c === "]") {
-            tokens.push({ type: TokenType.closeBracket, value: c });
+            tokens.push({ type: TokenType.CloseBracket, value: c });
             i++;
         } else if (c === ",") {
             tokens.push({ type: TokenType.Comma, value: c });

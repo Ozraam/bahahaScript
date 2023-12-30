@@ -1,4 +1,4 @@
-import { Statement, Program, Expression, BinaryExpression, NumericLiteral, Identifier, VariableDeclaration, AssignmentExpression, PropertyLiteral, ObjectLiteral, CallExpression, MemberExpression, FunctionDeclaration, StringLiteral, ImportStatement } from "./ast.ts";
+import { Statement, Program, Expression, BinaryExpression, NumericLiteral, Identifier, VariableDeclaration, AssignmentExpression, PropertyLiteral, ObjectLiteral, CallExpression, MemberExpression, FunctionDeclaration, StringLiteral, ImportStatement, ArrayLiteral } from "./ast.ts";
 import { tokenize, Token, TokenType} from "./lexer.ts";
 
 export default class Parser {
@@ -212,7 +212,7 @@ export default class Parser {
 
     parseObjectExpression() : Expression {
         if(this.at().type != TokenType.OpenBrace) {
-            return this.parseBooleanAdditiveExpression();
+            return this.parseArrayExpression();
         }
 
         this.consume();
@@ -244,6 +244,31 @@ export default class Parser {
             kind: "ObjectLiteral",
             properties
         } as ObjectLiteral;
+    }
+
+    parseArrayExpression(): Expression {
+        if(this.at().type != TokenType.OpenBracket) {
+            return this.parseBooleanAdditiveExpression();
+        }
+
+        this.consume();
+        const elements = new Array<Expression>();
+
+        while(this.notEOF() && this.at().type != TokenType.CloseBracket) {
+            const element = this.parseExpression();
+
+            elements.push(element);
+            if(this.at().type != TokenType.CloseBracket) {
+                this.consumeAndExpect(TokenType.Comma, "Expected ',' in array literal");
+            }
+        }
+
+        this.consumeAndExpect(TokenType.CloseBracket, "Expected closing bracket");
+
+        return {
+            kind: "ArrayLiteral",
+            elements
+        } as ArrayLiteral;
     }
 
     parseBooleanAdditiveExpression() : Expression {
@@ -381,7 +406,7 @@ export default class Parser {
     private parseMemberExpression() : Expression {
         let object = this.parsePrimaryExpression();
 
-        while(this.at().type == TokenType.Dot || this.at().type == TokenType.openBracket) {
+        while(this.at().type == TokenType.Dot || this.at().type == TokenType.OpenBracket) {
             const operator = this.consume();
             let property : Expression;
             let computed : boolean;
@@ -398,7 +423,7 @@ export default class Parser {
             } else {
                 computed = true;
                 property = this.parseExpression();
-                this.consumeAndExpect(TokenType.closeBracket, "Expected closing bracket");
+                this.consumeAndExpect(TokenType.CloseBracket, "Expected closing bracket");
             }
 
             object = {

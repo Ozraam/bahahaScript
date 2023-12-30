@@ -7,6 +7,7 @@ export type ValueTypes =
     | "string"
     | "boolean"
     | "object"
+    | "array"
     | "native_function"
     | "function";
 
@@ -45,6 +46,11 @@ export interface ObjectValue extends RuntimeValue {
     properties: Map<string, RuntimeValue>;
 }
 
+export interface ArrayValue extends RuntimeValue {
+    type: "array";
+    values: RuntimeValue[];
+}
+
 export type FunctionCall = (args: RuntimeValue[], env: Environment) => RuntimeValue;
 
 export interface NativeFunctionValue extends RuntimeValue {
@@ -74,4 +80,12 @@ export function MK_BOOLEAN(value: boolean) : BooleanValue {
 
 export function MK_NATIVE_FUNCTION(fn: FunctionCall) : NativeFunctionValue {
     return { type: "native_function", fn } as NativeFunctionValue;
+}
+
+export function MK_NATIVE_FUNCTION_OBJ(obj: Record<string, FunctionCall>) : ObjectValue {
+    const properties = new Map<string, RuntimeValue>();
+    for(const [key, value] of Object.entries(obj)) {
+        properties.set(key, MK_NATIVE_FUNCTION(value));
+    }
+    return { type: "object", properties } as ObjectValue;
 }

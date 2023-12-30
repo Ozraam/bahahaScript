@@ -1,3 +1,16 @@
 import "module.bh"
 
-print(add(1, 2))
+fn forEach(arr, fun) {
+    let i = 0;
+    while (i < Array.length(arr)) {
+        fun(arr[i])
+        i = i + 1
+    }
+}
+
+fn main() {
+    let arr = [1, 2, 3];
+    forEach(arr, test)
+}
+
+main()

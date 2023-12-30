@@ -1,7 +1,8 @@
-import { AssignmentExpression, BinaryExpression,CallExpression,Identifier, MemberExpression, ObjectLiteral } from "../../interpretor/ast.ts";
+import { ArrayLiteral, AssignmentExpression, BinaryExpression,CallExpression,Identifier, MemberExpression, NumericLiteral, ObjectLiteral } from "../../interpretor/ast.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
-import { NumberValue,RuntimeValue,MK_NULL, ObjectValue, NativeFunctionValue, FunctionValue } from "../values.ts";
+import { customPrint } from "../nativeFunction.ts";
+import { NumberValue,RuntimeValue,MK_NULL, ObjectValue, NativeFunctionValue, FunctionValue, ArrayValue } from "../values.ts";
 
 function evalNumericExpression(operator: string, left: NumberValue, right: NumberValue): RuntimeValue {
     switch(operator) {
@@ -60,30 +61,44 @@ export function evalAssignmentExpression(node: AssignmentExpression, env: Enviro
         const memberExpression = node.assigne as MemberExpression;
         const object = evaluate(memberExpression.object, env);
 
-        if(object.type != "object") {
-            console.error("Member access on non-object");
-            Deno.exit(1);
-        }
+        if(object.type == "object") {
+            if(memberExpression.property.kind != "Identifier") {
+                console.error("Member access with non-identifier");
+                Deno.exit(1);
+            }
+    
+            const propertyIdentifier = memberExpression.property as Identifier;
+    
+            const property = (object as ObjectValue).properties.get(propertyIdentifier.symbol);
+            
+            if(property == undefined) {
+                console.error("Property not found");
+                Deno.exit(1);
+            }
+    
+            const value = evaluate(node.value, env);
+    
+            (object as ObjectValue).properties.set(propertyIdentifier.symbol, value);
 
-        if(memberExpression.property.kind != "Identifier") {
-            console.error("Member access with non-identifier");
-            Deno.exit(1);
-        }
+            return value;
+        } else if(object.type == "array") {
+            const arrayIndex = evaluate(memberExpression.property, env) as NumberValue;
 
-        const propertyIdentifier = memberExpression.property as Identifier;
-
-        const property = (object as ObjectValue).properties.get(propertyIdentifier.symbol);
+            if(arrayIndex.type != "number") {
+                console.error("Array access with non-numeric literal");
+                Deno.exit(1);
+            }
         
-        if(property == undefined) {
-            console.error("Property not found");
-            Deno.exit(1);
+        
+            const value = evaluate(node.value, env);
+        
+            (object as ArrayValue).values[arrayIndex.value] = value;
+
+            return value;
         }
 
-        const value = evaluate(node.value, env);
-
-        (object as ObjectValue).properties.set(propertyIdentifier.symbol, value);
-
-        return value;
+        console.error("Member access on non-object or non-array " + object.type);
+        Deno.exit(1);
     }
 
     console.error("Assignment to non-identifier");
@@ -136,24 +151,50 @@ export function evalCallExpression(expression: CallExpression, env: Environment)
 export function evalMemberExpression(node: MemberExpression, env: Environment): RuntimeValue {
     const object = evaluate(node.object, env);
     
-    if(object.type != "object") {
-        console.error("Member access on non-object");
-        Deno.exit(1);
-    }
-
-    if(node.property.kind != "Identifier") {
-        console.error("Member access with non-identifier");
-        Deno.exit(1);
-    }
-
-    const propertyIdentifier = node.property as Identifier;
-
-    const property = (object as ObjectValue).properties.get(propertyIdentifier.symbol);
+    if(object.type == "object") {
+        if(node.property.kind != "Identifier") {
+            console.error("Member access with non-identifier");
+            Deno.exit(1);
+        }
     
-    if(property == undefined) {
-        console.error("Property not found");
-        Deno.exit(1);
+        const propertyIdentifier = node.property as Identifier;
+    
+        const property = (object as ObjectValue).properties.get(propertyIdentifier.symbol);
+        
+        if(property == undefined) {
+            console.error(`Property '${propertyIdentifier.symbol}' not found in `);
+            customPrint([object]);
+            Deno.exit(1);
+        }
+    
+        return property;
+    } else if(object.type == "array") {
+        const arrayIndex = evaluate(node.property, env) as NumberValue;
+
+        if(arrayIndex.type != "number") {
+            console.error("Array access with non-numeric literal");
+            Deno.exit(1);
+        }
+    
+    
+        const property = (object as ArrayValue).values[arrayIndex.value];
+        
+        if(property == undefined) {
+            console.error("Index out of bounds");
+            Deno.exit(1);
+        }
+    
+        return property;
     }
 
-    return property;
+    
+
+    console.error("Member access on non-object or non-array " + object.type);
+    Deno.exit(1);
+}
+
+export function evalArrayLiteral(array: ArrayLiteral, env: Environment): RuntimeValue {
+    const values = array.elements.map(element => evaluate(element, env));
+
+    return { type: "array", values } as ArrayValue;
 }

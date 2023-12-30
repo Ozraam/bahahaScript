@@ -1,5 +1,5 @@
-import { customPrint, notBool } from "./nativeFunction.ts";
-import { MK_BOOLEAN, MK_NATIVE_FUNCTION, MK_NULL, RuntimeValue } from "./values.ts";
+import { arrayFunctions, customPrint, notBool, toStr } from "./nativeFunction.ts";
+import { MK_BOOLEAN, MK_NATIVE_FUNCTION, MK_NATIVE_FUNCTION_OBJ, MK_NULL, RuntimeValue } from "./values.ts";
 
 function setupEnv(env: Environment) {
     // Create global variables
@@ -10,9 +10,8 @@ function setupEnv(env: Environment) {
     // Create global functions
     env.declareVar("print", MK_NATIVE_FUNCTION(customPrint), true);
     env.declareVar("not", MK_NATIVE_FUNCTION(notBool), true);
-    env.declareVar("str", MK_NATIVE_FUNCTION((args: RuntimeValue[]) => {
-        return { type: "string", value: args[0].toString() } as RuntimeValue;
-    }), true);
+    env.declareVar("str", MK_NATIVE_FUNCTION(toStr), true);
+    env.declareVar("Array", MK_NATIVE_FUNCTION_OBJ(arrayFunctions), true);
 }
 
 export default class Environment {
