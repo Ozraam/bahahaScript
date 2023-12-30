@@ -1,4 +1,4 @@
-import { Statement, Program, Expression, BinaryExpression, NumericLiteral, Identifier, VariableDeclaration, AssignmentExpression, PropertyLiteral, ObjectLiteral, CallExpression, MemberExpression, FunctionDeclaration, StringLiteral } from "./ast.ts";
+import { Statement, Program, Expression, BinaryExpression, NumericLiteral, Identifier, VariableDeclaration, AssignmentExpression, PropertyLiteral, ObjectLiteral, CallExpression, MemberExpression, FunctionDeclaration, StringLiteral, ImportStatement } from "./ast.ts";
 import { tokenize, Token, TokenType} from "./lexer.ts";
 
 export default class Parser {
@@ -57,9 +57,22 @@ export default class Parser {
             case TokenType.While:
                 return this.parseWhileStatement();
 
+            case TokenType.Import:
+                return this.parseImportStatement();
+
             default:
                 return this.parseExpression();
         }
+    }
+
+    private parseImportStatement(): Statement {
+        this.consume(); // eat import
+        const identifier = this.consumeAndExpect(TokenType.String, "Expected String path for import").value;
+
+        return {
+            kind: "ImportStatement",
+            path: identifier
+        } as ImportStatement;
     }
 
     parseFunctionDeclaration(): Statement {

@@ -30,6 +30,7 @@ export enum TokenType {
     String,
 
     Unknown,
+    Import,
 }
 
 const KEYWORDS : Record<string, {token: TokenType, value: string}> = {
@@ -39,6 +40,7 @@ const KEYWORDS : Record<string, {token: TokenType, value: string}> = {
     "if": {token: TokenType.If, value: "if"},
     "else": {token: TokenType.Else, value: "else"},
     "while": {token: TokenType.While, value: "while"},
+    "import": {token: TokenType.Import, value: "import"},
 };
 
 export interface Token {

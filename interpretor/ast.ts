@@ -6,6 +6,7 @@ export type NodeType =
     | "FunctionDeclaration"
     | "IfStatement"
     | "WhileStatement"
+    | "ImportStatement"
 
 
     // Expressions
@@ -16,6 +17,7 @@ export type NodeType =
     // Literals
     | "PropertyLiteral"
     | "ObjectLiteral"
+    | "ArrayLiteral"
     | "BinaryExpression"
     | "Identifier" 
     | "NumericLiteral"
@@ -55,6 +57,11 @@ export interface WhileStatement extends Statement {
     kind: "WhileStatement";
     condition: Expression;
     body: Statement[];
+}
+
+export interface ImportStatement extends Statement {
+    kind: "ImportStatement";
+    path: string;
 }
 
 
@@ -110,4 +117,9 @@ export interface PropertyLiteral extends Expression {
 export interface ObjectLiteral extends Expression {
     kind: "ObjectLiteral";
     properties: PropertyLiteral[];
+}
+
+export interface ArrayLiteral extends Expression {
+    kind: "ArrayLiteral";
+    elements: Expression[];
 }

@@ -1,0 +1,3 @@
+import "module.bh"
+
+print(add(1, 2))

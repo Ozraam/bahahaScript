@@ -1,4 +1,5 @@
-import { FunctionDeclaration, IfStatement, Program, VariableDeclaration, WhileStatement } from "../../interpretor/ast.ts";
+import { FunctionDeclaration, IfStatement, ImportStatement, Program, VariableDeclaration, WhileStatement } from "../../interpretor/ast.ts";
+import Parser from "../../interpretor/parser.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
 import { RuntimeValue,MK_NULL, FunctionValue, BooleanValue } from "../values.ts";
@@ -73,4 +74,19 @@ export function evalWhileStatement(astNode: WhileStatement, env: Environment): R
     }
 
     return lastEvaluated;
+}
+
+export function evalImportStatement(astNode: ImportStatement, env: Environment): RuntimeValue {
+    try {
+        const file = Deno.readTextFileSync(astNode.path);
+        const parser = new Parser();
+        const program = parser.produceAST(file);
+    
+        evaluate(program, env); 
+    } catch(_e) {
+        console.error("Could not import file:", astNode.path);
+        Deno.exit(1);
+    }
+
+    return MK_NULL();
 }
