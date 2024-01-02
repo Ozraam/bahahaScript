@@ -1,0 +1,17 @@
+schyzo
+gitgud "module.bh"
+
+feur forEach openParenthesis arr comma fun closeParenthesis openBrace
+    devasted i assign 0 semicolon
+    while openParenthesis i lessThan Array dot length openParenthesis arr closeParenthesis closeParenthesis openBrace
+        fun openParenthesis arr openBracket i closeBracket closeParenthesis
+        i assign i plus 1
+    closeBrace
+closeBrace
+
+feur main openParenthesis closeParenthesis openBrace
+    devasted arr assign openBracket 1 comma 2 comma 3 closeBracket semicolon
+    forEach openParenthesis arr comma test closeParenthesis
+closeBrace
+
+main openParenthesis closeParenthesis
