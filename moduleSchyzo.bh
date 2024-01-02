@@ -1,0 +1,4 @@
+schyzo
+feur test openParenthesis x closeParenthesis openBrace
+    print openParenthesis x plus 1 times 5 closeParenthesis
+closeBrace

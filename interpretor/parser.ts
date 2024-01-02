@@ -42,6 +42,15 @@ export default class Parser {
         return program
     }
 
+    private tokensToFile() {
+        let output = ""
+        for(const token of this.tokens) {
+            output += token.value;
+        }
+
+        Deno.writeTextFileSync("tokens.txt", output);
+    }
+
     private parseStatement(): Statement {
         switch(this.at().type) {
             case TokenType.Let:
@@ -180,7 +189,7 @@ export default class Parser {
             return { kind: "VariableDeclaration", const: isConst, identifier } as VariableDeclaration;
         }
 
-        this.consumeAndExpect(TokenType.Equals, "Expected '='");
+        this.consumeAndExpect(TokenType.Assign, "Expected '='");
 
         const value = this.parseExpression();
         
@@ -196,7 +205,7 @@ export default class Parser {
     private parseAssignmentExpression(): Expression {
         const left = this.parseObjectExpression();
 
-        if(this.at().type == TokenType.Equals) {
+        if(this.at().type == TokenType.Assign) {
             this.consume();
             const right = this.parseAssignmentExpression();
 

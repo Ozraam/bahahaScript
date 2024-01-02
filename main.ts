@@ -10,6 +10,7 @@ async function run(filename: string) {
     const file = await Deno.readTextFile(filename);
     const program = parser.produceAST(file);
     
+    
     evaluate(program, env);
 }
 

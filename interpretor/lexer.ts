@@ -12,7 +12,7 @@ export enum TokenType {
     While,
 
     // Grouping and operators
-    Equals,
+    Assign,
     OpenParenthesis,
     CloseParenthesis,
     BinaryOperator,
@@ -31,17 +31,62 @@ export enum TokenType {
 
     Unknown,
     Import,
+
+    SchyzoMode,
 }
+
+const KEYWORDS_SCHYZO : Record<string, {token: TokenType, value: string}> = {
+    "devasted": {token: TokenType.Let, value: "let"},
+    "const": {token: TokenType.Const, value: "const"},
+
+    "feur": {token: TokenType.Fn, value: "fn"},
+
+    "eeeeuh": {token: TokenType.If, value: "if"},
+    "cringe": {token: TokenType.Else, value: "else"},
+    "while": {token: TokenType.While, value: "while"},
+    "gitgud": {token: TokenType.Import, value: "import"},
+
+    "greaterThan": {token: TokenType.BinaryOperator, value: ">"},
+    "lessThan": {token: TokenType.BinaryOperator, value: "<"},
+    "equals": {token: TokenType.BinaryOperator, value: "=="},
+    "and": {token: TokenType.BinaryOperator, value: "&&"},
+    "or": {token: TokenType.BinaryOperator, value: "||"},
+    "greaterOrEquals": {token: TokenType.BinaryOperator, value: ">="},
+    "lessOrEquals": {token: TokenType.BinaryOperator, value: "<="},
+
+    "plus": {token: TokenType.BinaryOperator, value: "+"},
+    "minus": {token: TokenType.BinaryOperator, value: "-"},
+    "times": {token: TokenType.BinaryOperator, value: "*"},
+    "divide": {token: TokenType.BinaryOperator, value: "/"},
+    "modulo": {token: TokenType.BinaryOperator, value: "%"},
+
+    "assign": {token: TokenType.Assign, value: "="},
+
+    "openParenthesis": {token: TokenType.OpenParenthesis, value: "("},
+    "closeParenthesis": {token: TokenType.CloseParenthesis, value: ")"},
+    "openBrace": {token: TokenType.OpenBrace, value: "{"},
+    "closeBrace": {token: TokenType.CloseBrace, value: "}"},
+    "openBracket": {token: TokenType.OpenBracket, value: "["},
+    "closeBracket": {token: TokenType.CloseBracket, value: "]"},
+    "comma": {token: TokenType.Comma, value: ","},
+    "colon": {token: TokenType.Colon, value: ":"},
+    "dot": {token: TokenType.Dot, value: "."},
+    "semicolon": {token: TokenType.Semicolon, value: ";"},
+};
 
 const KEYWORDS : Record<string, {token: TokenType, value: string}> = {
     "let": {token: TokenType.Let, value: "let"},
     "const": {token: TokenType.Const, value: "const"},
+
     "fn": {token: TokenType.Fn, value: "fn"},
+
     "if": {token: TokenType.If, value: "if"},
     "else": {token: TokenType.Else, value: "else"},
     "while": {token: TokenType.While, value: "while"},
     "import": {token: TokenType.Import, value: "import"},
-};
+
+    "schyzo": {token: TokenType.SchyzoMode, value: "schyzo"},
+}
 
 export interface Token {
     type: TokenType;
@@ -151,6 +196,8 @@ export function tokenize(src: string): Token[] {
                 
                 const type = reservedType != undefined ? reservedType : {token: TokenType.Identifier, value: value};
 
+                if(type.token === TokenType.SchyzoMode) return tokenizeSchyzo(src);
+
                 tokens.push(token(type.token, type.value));
             } else if (isBooleanOperator(c)) {
                 let value = "";
@@ -160,11 +207,71 @@ export function tokenize(src: string): Token[] {
                 }
 
                 if(value === "=") {
-                    tokens.push(token(TokenType.Equals, value));
+                    tokens.push(token(TokenType.Assign, value));
                 } else tokens.push(token(TokenType.BinaryOperator, value));
             }
             
             else {
+                console.log("Unexpected character: " + c);
+                Deno.exit(1); 
+            }
+        }
+    }
+    tokens.push(token(TokenType.EOF, "EndOfFile"));
+    return tokens;
+}
+
+
+function tokenizeSchyzo(src: string): Token[] {
+    console.log("Schyzo mode activated");
+    
+    const tokens: Token[] = [];
+    let i = 0;
+    while (i < src.length) {
+        const c = src[i];
+        
+        if (isWhitespace(c)) {
+            i++;
+        } else if(c === "\"") {
+            // Create a string token 
+
+            let value = "";
+            i++;
+            while(src[i] !== "\"" && src[i] !== undefined) {
+                value += src[i];
+                i++;
+            }
+
+            tokens.push({ type: TokenType.String, value: value });
+            i++;
+        } 
+        
+        else {
+            // Check for multi-character tokens
+            if (isDigit(c)) {
+                const start = i;
+                // Loop until we find a non-digit character by incrementing i in the condition
+                while (isDigit(src[++i]));
+
+                // Add the number token
+                tokens.push(token(TokenType.Number, src.slice(start, i)));
+            } else if (isLetter(c)) {
+                const start = i;
+                // Loop until we find a non-letter character by incrementing i in the condition
+                while (isLetter(src[++i]));
+
+                // Add the identifier token
+                const value = src.slice(start, i);
+
+                if(value !== "schyzo") {
+                    const reservedType = KEYWORDS_SCHYZO[value];
+                    
+                    
+                    const type = reservedType != undefined ? reservedType : {token: TokenType.Identifier, value: value};
+
+                    tokens.push(token(type.token, type.value));
+                }
+            } else {
                 console.log("Unexpected character: " + c);
                 Deno.exit(1); 
             }
